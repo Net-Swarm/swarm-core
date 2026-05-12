@@ -1,0 +1,44 @@
+# === Build Artifacts & Binaries ===
+build/
+bin/
+lib/
+obj/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# === CMake & Build Systems ===
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps/
+
+# === Emscripten (WebAssembly Bridge) ===
+*.wasm
+*.js
+*.data
+*.worker.js
+
+# === AI Tooling & Environment ===
+.claude/
+.claudecode/
+.cursor/
+.env
+.env.*
+!.env.example
+
+# === IDE & OS Noise ===
+.vscode/
+.vs/
+*.user
+*.suo
+*.sln
+*.vcxproj
+.DS_Store
+Thumbs.db
