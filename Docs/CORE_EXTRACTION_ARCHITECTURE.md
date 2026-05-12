@@ -3,7 +3,7 @@
 > **Status:** Phase 1 — Data Model & The Arena
 > **Scope:** Contract definition only. No implementation.
 > **Tracking:** [CORE-2 epic] / CORE-3
-> **ABI baseline:** `CORE_ABI_VERSION = 1`
+> **ABI baseline:** `SWARM_CORE_ABI_VERSION = 1`
 
 ---
 
@@ -29,14 +29,14 @@ swarm-core/
 ├── include/
 │   └── swarm_core/        # PUBLIC headers — part of the ABI contract
 │       ├── swarm_core.h   # Top-level entry point (init, update, reset, shutdown, buffer accessors)
-│       └── version.h      # CORE_ABI_VERSION constant
+│       └── version.h      # SWARM_CORE_ABI_VERSION constant
 ├── src/                   # PRIVATE implementation — not part of the ABI contract
 │   └── (arena, math, integrator, spatial grid, etc.)
 └── tests/                 # Internal tests; not consumed by shells
 ```
 
 **Rule of contract:**
-- Anything declared in `include/swarm_core/` is part of the public contract. Breaking changes here require a `CORE_ABI_VERSION` bump (see §9).
+- Anything declared in `include/swarm_core/` is part of the public contract. Breaking changes here require a `SWARM_CORE_ABI_VERSION` bump (see §9).
 - Anything in `src/` is private. Layouts, classes, helper functions, and internal types may change at any time without notice. Shells **must not** include `src/` headers.
 
 Shells link against the produced static library (native) or the Wasm module (web) and consume only `include/swarm_core/`.
@@ -108,7 +108,7 @@ Each accessor returns a stable pointer to the head of one SoA buffer. See §6 fo
 
 | Symbol | Purpose |
 |---|---|
-| `uint32_t swarm_core_abi_version(void)` | Returns `CORE_ABI_VERSION`. See §9. |
+| `uint32_t swarm_core_abi_version(void)` | Returns `SWARM_CORE_ABI_VERSION`. See §9. |
 
 ### Reserved for Later Phases
 
@@ -212,20 +212,20 @@ The arena allocator (CORE-5) is responsible for placing each buffer's base point
 
 ---
 
-## 9. Versioning — `CORE_ABI_VERSION`
+## 9. Versioning — `SWARM_CORE_ABI_VERSION`
 
 The public contract is versioned with a single monotonically-increasing unsigned integer:
 
 ```c
 // include/swarm_core/version.h
-#define CORE_ABI_VERSION 1u
+#define SWARM_CORE_ABI_VERSION 1u
 ```
 
 queryable at runtime via `swarm_core_abi_version()`.
 
 ### When to bump
 
-`CORE_ABI_VERSION` is bumped on **any** of the following:
+`SWARM_CORE_ABI_VERSION` is bumped on **any** of the following:
 
 - A new buffer is added, removed, or reordered.
 - An existing buffer's element type changes (e.g., `float` → `double`).
@@ -241,11 +241,11 @@ It is **not** bumped for:
 
 ### Shell responsibility
 
-Shells should record the `CORE_ABI_VERSION` they were compiled against and compare it to `swarm_core_abi_version()` at runtime. A mismatch is a fatal error — the shell should refuse to run rather than silently consume buffers laid out differently than it expects.
+Shells should record the `SWARM_CORE_ABI_VERSION` they were compiled against and compare it to `swarm_core_abi_version()` at runtime. A mismatch is a fatal error — the shell should refuse to run rather than silently consume buffers laid out differently than it expects.
 
 ### Initial version
 
-`CORE_ABI_VERSION = 1`. This document defines that version.
+`SWARM_CORE_ABI_VERSION = 1`. This document defines that version.
 
 ---
 
@@ -283,4 +283,4 @@ This ticket (CORE-3) defines the contract. It does **not** include:
 - React Wasm-loader hook — **CORE-10**.
 - `requestAnimationFrame` loop and JS-side `Float32Array` views — **CORE-11**.
 
-If a later ticket needs to deviate from this contract, the deviation is resolved by editing this document first (and bumping `CORE_ABI_VERSION` if the change is breaking) before code lands.
+If a later ticket needs to deviate from this contract, the deviation is resolved by editing this document first (and bumping `SWARM_CORE_ABI_VERSION` if the change is breaking) before code lands.
