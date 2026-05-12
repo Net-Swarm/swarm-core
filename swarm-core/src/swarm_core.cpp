@@ -1,9 +1,11 @@
 #include "swarm_core/swarm_core.h"
 
 #include "arena.h"
+#include "integrator.h"
 
 using swarm::core::ParticleStateSoA;
 namespace arena = swarm::core::arena;
+namespace integrator = swarm::core::integrator;
 
 extern "C" {
 
@@ -11,10 +13,8 @@ bool swarm_core_init(uint32_t maxParticles) {
     return arena::init(maxParticles);
 }
 
-void swarm_core_update(float /*deltaTime*/) {
-    // CORE-6 implements the Euler integrator. The arena guarantees this path
-    // remains alloc-free: all simulation state lives in the fixed block bound
-    // by arena::init.
+void swarm_core_update(float deltaTime) {
+    integrator::step(deltaTime);
 }
 
 void swarm_core_reset(void) {
