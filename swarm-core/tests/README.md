@@ -11,6 +11,7 @@ then, build each driver from the repository root.
 cl /std:c++17 /W4 /EHsc /Iswarm-core\include ^
    swarm-core\src\swarm_core_math.cpp ^
    swarm-core\src\swarm_core_particles.cpp ^
+   swarm-core\src\spatial_grid.cpp ^
    swarm-core\src\arena.cpp ^
    swarm-core\src\integrator.cpp ^
    swarm-core\src\swarm_core.cpp ^
@@ -25,6 +26,7 @@ test_arena.exe
 clang++ -std=c++17 -Wall -Wextra -Iswarm-core/include \
    swarm-core/src/swarm_core_math.cpp \
    swarm-core/src/swarm_core_particles.cpp \
+   swarm-core/src/spatial_grid.cpp \
    swarm-core/src/arena.cpp \
    swarm-core/src/integrator.cpp \
    swarm-core/src/swarm_core.cpp \
@@ -41,6 +43,7 @@ clang++ -std=c++17 -Wall -Wextra -Iswarm-core/include \
 cl /std:c++17 /W4 /EHsc /Iswarm-core\include ^
    swarm-core\src\swarm_core_math.cpp ^
    swarm-core\src\swarm_core_particles.cpp ^
+   swarm-core\src\spatial_grid.cpp ^
    swarm-core\src\arena.cpp ^
    swarm-core\src\integrator.cpp ^
    swarm-core\src\swarm_core.cpp ^
@@ -55,12 +58,45 @@ test_update.exe
 clang++ -std=c++17 -Wall -Wextra -Iswarm-core/include \
    swarm-core/src/swarm_core_math.cpp \
    swarm-core/src/swarm_core_particles.cpp \
+   swarm-core/src/spatial_grid.cpp \
    swarm-core/src/arena.cpp \
    swarm-core/src/integrator.cpp \
    swarm-core/src/swarm_core.cpp \
    swarm-core/tests/test_update.cpp \
    -o test_update
 ./test_update
+```
+
+## test_spatial_grid — CORE-7 spatial grid scaffolding contract
+
+### MSVC (Developer Command Prompt)
+
+```
+cl /std:c++17 /W4 /EHsc /Iswarm-core\include ^
+   swarm-core\src\swarm_core_math.cpp ^
+   swarm-core\src\swarm_core_particles.cpp ^
+   swarm-core\src\spatial_grid.cpp ^
+   swarm-core\src\arena.cpp ^
+   swarm-core\src\integrator.cpp ^
+   swarm-core\src\swarm_core.cpp ^
+   swarm-core\tests\test_spatial_grid.cpp ^
+   /Fe:test_spatial_grid.exe
+test_spatial_grid.exe
+```
+
+### Clang / GCC
+
+```
+clang++ -std=c++17 -Wall -Wextra -Iswarm-core/include \
+   swarm-core/src/swarm_core_math.cpp \
+   swarm-core/src/swarm_core_particles.cpp \
+   swarm-core/src/spatial_grid.cpp \
+   swarm-core/src/arena.cpp \
+   swarm-core/src/integrator.cpp \
+   swarm-core/src/swarm_core.cpp \
+   swarm-core/tests/test_spatial_grid.cpp \
+   -o test_spatial_grid
+./test_spatial_grid
 ```
 
 Exit code 0 means every check passed. Each driver prints `<name>: OK` on success

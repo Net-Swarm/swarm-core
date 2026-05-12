@@ -207,8 +207,8 @@ The arena allocator (CORE-5) is responsible for placing each buffer's base point
 
 ### Reset semantics
 
-- `swarm_core_reset` sets `particleCount` to 0 and clears `flags[0..maxParticles)` to 0. Other buffer contents are unspecified after reset and should be treated as garbage until written.
-- Arena, capacity, and pointer identity are preserved across reset.
+- `swarm_core_reset` sets `particleCount` to 0 and clears `flags[0..maxParticles)` to 0. The spatial-grid buffers reserved in CORE-7 (see §12) are also cleared to 0. Other particle buffer contents are unspecified after reset and should be treated as garbage until written.
+- Arena, capacity, grid dimensions, and pointer identity are preserved across reset.
 
 ---
 
@@ -284,3 +284,58 @@ This ticket (CORE-3) defines the contract. It does **not** include:
 - `requestAnimationFrame` loop and JS-side `Float32Array` views — **CORE-11**.
 
 If a later ticket needs to deviate from this contract, the deviation is resolved by editing this document first (and bumping `SWARM_CORE_ABI_VERSION` if the change is breaking) before code lands.
+
+---
+
+## 12. Spatial Grid Scaffolding (CORE-7)
+
+CORE-7 reserves spatial-grid storage inside the arena so the public memory contract and the single-allocation invariant remain stable when the broad-phase algorithm lands. The grid scaffolding is **internal-only** in v1 — no public C function reads or writes grid buffers, and no public accessor returns them. The public surface added by CORE-7 is limited to two configuration types in `swarm_core_particles.h` and four documented constants.
+
+### Derivation rule
+
+```
+cellCount = gridCols * gridRows
+```
+
+- `gridCols` and `gridRows` are init-time configuration values supplied through `swarm::core::Config::spatialGrid`.
+- `gridCols`, `gridRows`, and the derived `cellCount` are immutable for the lifetime of the core instance.
+- The core **must not** infer `cellCount` from an undocumented runtime heuristic against `maxParticles`. The derivation above is the only path.
+
+### Defaults
+
+The convenience init path `swarm_core_init(uint32_t maxParticles)` supplies the documented defaults below. Future shells that need to tune grid dimensions will reach a separate init path; until then, the public ABI's grid is always 64 × 64.
+
+```c
+SWARM_CORE_DEFAULT_GRID_COLS = 64
+SWARM_CORE_DEFAULT_GRID_ROWS = 64
+```
+
+### Validation
+
+Initialization fails (returns `false`) on any of:
+
+- `gridCols == 0`
+- `gridRows == 0`
+- `gridCols > SWARM_CORE_MAX_GRID_COLS` (`4096`)
+- `gridRows > SWARM_CORE_MAX_GRID_ROWS` (`4096`)
+- `gridCols * gridRows` overflows `uint32_t`
+- `cellCount > SWARM_CORE_MAX_GRID_CELLS` (`1048576`)
+
+Validation runs before the arena allocation, so a rejected init leaves no partial state.
+
+### Storage
+
+The arena binds four `uint32_t` buffers as part of the same single allocation it uses for the particle SoA (§5.2). The buffers are:
+
+| Buffer            | Element count   | Purpose                                   |
+|-------------------|-----------------|-------------------------------------------|
+| `cellStartOrHead` | `cellCount`     | First-particle index per cell (or list head) |
+| `cellCountOrNext` | `cellCount`     | Occupancy per cell (or list-tail link)    |
+| `particleCell`    | `maxParticles`  | Owning cell per particle                  |
+| `particleNext`    | `maxParticles`  | Next-particle-in-cell per particle        |
+
+Each buffer pointer is 16-byte aligned (§7). Pointer identity is stable from init to shutdown (§8). Buffer contents are zeroed on init and on `swarm_core_reset` (§8).
+
+### ABI status
+
+CORE-7 does **not** bump `SWARM_CORE_ABI_VERSION`. No public C function gains, loses, or changes signature. `SpatialGridConfig` and the extension of `Config` live in the public header `swarm_core_particles.h` but no public C function takes `Config` by value or returns it, so none of the §9 bump triggers apply.

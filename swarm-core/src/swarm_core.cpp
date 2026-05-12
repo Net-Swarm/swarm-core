@@ -3,14 +3,26 @@
 #include "arena.h"
 #include "integrator.h"
 
+using swarm::core::Config;
 using swarm::core::ParticleStateSoA;
+using swarm::core::SpatialGridConfig;
 namespace arena = swarm::core::arena;
 namespace integrator = swarm::core::integrator;
 
 extern "C" {
 
 bool swarm_core_init(uint32_t maxParticles) {
-    return arena::init(maxParticles);
+    // CORE-7: the public convenience init supplies the documented defaults
+    // (Docs/CORE_EXTRACTION_ARCHITECTURE.md §12). Future shells that need to
+    // tune grid dimensions will land via a separate init path; for now the
+    // grid scaffolding is internal-only.
+    return arena::init(Config{
+        maxParticles,
+        SpatialGridConfig{
+            swarm::core::SWARM_CORE_DEFAULT_GRID_COLS,
+            swarm::core::SWARM_CORE_DEFAULT_GRID_ROWS,
+        },
+    });
 }
 
 void swarm_core_update(float deltaTime) {

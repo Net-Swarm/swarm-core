@@ -24,8 +24,27 @@ struct ParticleStateSoA {
     u32 capacity;  // immutable after init; equals Config::maxParticles
 };
 
+// CORE-7: Spatial grid scaffolding configuration. See §12 of the architecture
+// document. cellCount is *derived* as gridCols * gridRows; it is never inferred
+// from a runtime heuristic.
+constexpr u32 SWARM_CORE_DEFAULT_GRID_COLS = 64u;
+constexpr u32 SWARM_CORE_DEFAULT_GRID_ROWS = 64u;
+
+// Validation limits. Chosen to keep cellCount safely inside u32 and to bound
+// the worst-case arena byte budget at compile time. Realistic Plexus grids are
+// far smaller than these caps.
+constexpr u32 SWARM_CORE_MAX_GRID_COLS  = 4096u;
+constexpr u32 SWARM_CORE_MAX_GRID_ROWS  = 4096u;
+constexpr u32 SWARM_CORE_MAX_GRID_CELLS = 1u << 20;  // 1,048,576 cells
+
+struct SpatialGridConfig {
+    u32 gridCols;
+    u32 gridRows;
+};
+
 struct Config {
     u32 maxParticles;
+    SpatialGridConfig spatialGrid;
 };
 
 void zero(ParticleStateSoA& state);
