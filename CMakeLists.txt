@@ -30,9 +30,15 @@ else()
     target_compile_options(swarm-core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+# 3.20-compatible top-level detection (PROJECT_IS_TOP_LEVEL is 3.21+).
+set(SWARM_CORE_IS_TOP_LEVEL OFF)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(SWARM_CORE_IS_TOP_LEVEL ON)
+endif()
+
 option(SWARM_CORE_BUILD_TESTS
     "Build swarm-core native contract test drivers and register with CTest"
-    ${PROJECT_IS_TOP_LEVEL})
+    ${SWARM_CORE_IS_TOP_LEVEL})
 
 if (SWARM_CORE_BUILD_TESTS)
     enable_testing()
