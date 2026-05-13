@@ -1,5 +1,6 @@
 # === Build Artifacts & Binaries ===
 build/
+build-wasm/
 bin/
 lib/
 obj/
